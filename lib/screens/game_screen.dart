@@ -8,6 +8,7 @@ import 'package:dinosaur_game/objects/game_element.dart';
 import 'package:dinosaur_game/objects/ground.dart';
 import 'package:dinosaur_game/utils/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -51,6 +52,8 @@ class _GameScreenState extends State<GameScreen>
     Cloud(worldLocation: const Offset(200, 10)),
     Cloud(worldLocation: const Offset(350, -10)),
   ];
+  final FocusNode _keyboardFocus = FocusNode();
+  bool showGameOver = false;
 
   ///
   @override
@@ -59,7 +62,6 @@ class _GameScreenState extends State<GameScreen>
     worldController =
         AnimationController(vsync: this, duration: const Duration(days: 99));
     worldController.addListener(updateGame);
-    // worldController.forward();
     gameOver();
   }
 
@@ -79,10 +81,11 @@ class _GameScreenState extends State<GameScreen>
       dino.state = DinoState.running;
       dino.dispY = 0;
       worldController.reset();
+      showGameOver = false;
       cactusList = [
         Cactus(worldLocation: const Offset(200, 0)),
-        Cactus(worldLocation: const Offset(300, 0)),
-        Cactus(worldLocation: const Offset(450, 0)),
+        Cactus(worldLocation: const Offset(350, 0)),
+        Cactus(worldLocation: const Offset(500, 0)),
       ];
 
       groundList = [
@@ -126,6 +129,7 @@ class _GameScreenState extends State<GameScreen>
       for (Cactus cactus in cactusList) {
         Rect obstacleRect = cactus.getRect(screenSize, runDistance);
         if (dinoRect.overlaps(obstacleRect.deflate(20))) {
+          showGameOver = true;
           gameOver();
         }
 
@@ -183,6 +187,23 @@ class _GameScreenState extends State<GameScreen>
     }
   }
 
+  // Handling Keyboard events
+  void handleKeyboard(RawKeyEvent keyEvent) {
+    if (keyEvent.runtimeType == RawKeyDownEvent) {
+      switch (keyEvent.logicalKey.debugName) {
+        case "Space":
+          if (dino.state != DinoState.dead) {
+            dino.jump();
+          }
+          if (dino.state == DinoState.dead) {
+            newGame();
+          }
+          break;
+        default:
+      }
+    }
+  }
+
   @override
   void dispose() {
     gravityController.dispose();
@@ -221,21 +242,15 @@ class _GameScreenState extends State<GameScreen>
         ),
       );
     }
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 5000),
-      color: (runDistance ~/ dayNightOffest) % 2 == 0
-          ? Colors.white
-          : Colors.black,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          if (dino.state != DinoState.dead) {
-            dino.jump();
-          }
-          if (dino.state == DinoState.dead) {
-            newGame();
-          }
-        },
+    return RawKeyboardListener(
+      focusNode: _keyboardFocus,
+      autofocus: true,
+      onKey: handleKeyboard,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 5000),
+        color: (runDistance ~/ dayNightOffest) % 2 == 0
+            ? Colors.white
+            : Colors.black,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -244,11 +259,13 @@ class _GameScreenState extends State<GameScreen>
               animation: worldController,
               builder: (context, _) {
                 return Positioned(
-                  left: screenSize.width / 2 - 30,
-                  top: 100,
+                  right: screenSize.width / 6,
+                  top: 80,
                   child: Text(
-                    'Score: ' + runDistance.toInt().toString(),
+                    'HI   $highScore  ${runDistance.toInt()}',
                     style: TextStyle(
+                      fontSize: 20.toFont,
+                      fontWeight: FontWeight.w500,
                       color: (runDistance ~/ dayNightOffest) % 2 == 0
                           ? Colors.black
                           : Colors.white,
@@ -257,23 +274,43 @@ class _GameScreenState extends State<GameScreen>
                 );
               },
             ),
-            AnimatedBuilder(
-              animation: worldController,
-              builder: (context, _) {
-                return Positioned(
-                  left: screenSize.width / 2 - 50,
-                  top: 120,
-                  child: Text(
-                    'High Score: ' + highScore.toString(),
-                    style: TextStyle(
-                      color: (runDistance ~/ dayNightOffest) % 2 == 0
-                          ? Colors.black
-                          : Colors.white,
-                    ),
-                  ),
-                );
-              },
-            ),
+            showGameOver
+                ? AnimatedBuilder(
+                    animation: worldController,
+                    builder: (context, _) {
+                      return Positioned(
+                        left: screenSize.width / 2 - 30,
+                        top: 100,
+                        child: Column(
+                          children: [
+                            Text(
+                              'Game Over',
+                              style: TextStyle(
+                                fontSize: 22.toFont,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10.toHeight,
+                            ),
+                            Icon(
+                              Icons.refresh_rounded,
+                              size: 30.toFont,
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  )
+                : AnimatedBuilder(
+                    animation: worldController,
+                    builder: (context, _) {
+                      return Positioned(
+                          left: screenSize.width / 2 - 30,
+                          top: 100,
+                          child: const SizedBox());
+                    }),
             Positioned(
               right: 20,
               top: 20,
@@ -299,6 +336,8 @@ class _GameScreenState extends State<GameScreen>
                                 children: [
                                   const Text("Gravity:"),
                                   SizedBox(
+                                    height: 25,
+                                    width: 75,
                                     child: TextField(
                                       controller: gravityController,
                                       key: UniqueKey(),
@@ -310,8 +349,6 @@ class _GameScreenState extends State<GameScreen>
                                         ),
                                       ),
                                     ),
-                                    height: 25,
-                                    width: 75,
                                   ),
                                 ],
                               ),
@@ -329,6 +366,8 @@ class _GameScreenState extends State<GameScreen>
                                 children: [
                                   const Text("Acceleration:"),
                                   SizedBox(
+                                    height: 25,
+                                    width: 75,
                                     child: TextField(
                                       controller: accelerationController,
                                       key: UniqueKey(),
@@ -340,8 +379,6 @@ class _GameScreenState extends State<GameScreen>
                                         ),
                                       ),
                                     ),
-                                    height: 25,
-                                    width: 75,
                                   ),
                                 ],
                               ),
@@ -359,6 +396,8 @@ class _GameScreenState extends State<GameScreen>
                                 children: [
                                   const Text("Initial Velocity:"),
                                   SizedBox(
+                                    height: 25,
+                                    width: 75,
                                     child: TextField(
                                       controller: runVelocityController,
                                       key: UniqueKey(),
@@ -370,8 +409,6 @@ class _GameScreenState extends State<GameScreen>
                                         ),
                                       ),
                                     ),
-                                    height: 25,
-                                    width: 75,
                                   ),
                                 ],
                               ),
@@ -389,6 +426,8 @@ class _GameScreenState extends State<GameScreen>
                                 children: [
                                   const Text("Jump Velocity:"),
                                   SizedBox(
+                                    height: 25,
+                                    width: 75,
                                     child: TextField(
                                       controller: jumpVelocityController,
                                       key: UniqueKey(),
@@ -400,8 +439,6 @@ class _GameScreenState extends State<GameScreen>
                                         ),
                                       ),
                                     ),
-                                    height: 25,
-                                    width: 75,
                                   ),
                                 ],
                               ),
@@ -419,6 +456,8 @@ class _GameScreenState extends State<GameScreen>
                                 children: [
                                   const Text("Day-Night Offset:"),
                                   SizedBox(
+                                    height: 25,
+                                    width: 75,
                                     child: TextField(
                                       controller: dayNightOffestController,
                                       key: UniqueKey(),
@@ -430,8 +469,6 @@ class _GameScreenState extends State<GameScreen>
                                         ),
                                       ),
                                     ),
-                                    height: 25,
-                                    width: 75,
                                   ),
                                 ],
                               ),
@@ -450,9 +487,15 @@ class _GameScreenState extends State<GameScreen>
                                   int.parse(dayNightOffestController.text);
                               Navigator.of(context).pop();
                             },
-                            child: const Text(
-                              "Done",
-                              style: TextStyle(color: Colors.grey),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10.toWidth,
+                                  vertical: 10.toHeight),
+                              color: Colors.black,
+                              child: const Text(
+                                "Done",
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
                           )
                         ],
@@ -460,18 +503,6 @@ class _GameScreenState extends State<GameScreen>
                     },
                   );
                 },
-              ),
-            ),
-            Positioned(
-              bottom: 10,
-              child: TextButton(
-                onPressed: () {
-                  gameOver();
-                },
-                child: const Text(
-                  "Quit Game",
-                  style: TextStyle(color: Colors.red),
-                ),
               ),
             ),
           ],

@@ -7,28 +7,16 @@ import 'package:flutter/material.dart';
 
 List<GroundElements> cactus = [
   GroundElements()
-    ..imagePath = "assets/cactus/cactus_group.png"
-    ..imageWidth = 104
-    ..imageHeight = 100,
-  GroundElements()
     ..imagePath = "assets/cactus/cactus_one.png"
     ..imageWidth = 50
     ..imageHeight = 100,
   GroundElements()
-    ..imagePath = "assets/cactus/cactus_two.png"
-    ..imageWidth = 98
-    ..imageHeight = 100,
-  GroundElements()
     ..imagePath = "assets/cactus/cactus_small_one.png"
-    ..imageWidth = 34
+    ..imageWidth = 54
     ..imageHeight = 70,
   GroundElements()
     ..imagePath = "assets/cactus/cactus_small_two.png"
-    ..imageWidth = 68
-    ..imageHeight = 70,
-  GroundElements()
-    ..imagePath = "assets/cactus/cactus_small_three.png"
-    ..imageWidth = 107
+    ..imageWidth = 58
     ..imageHeight = 70,
 ];
 
