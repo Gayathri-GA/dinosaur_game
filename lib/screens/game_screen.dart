@@ -52,7 +52,7 @@ class _GameScreenState extends State<GameScreen>
     Cloud(worldLocation: const Offset(200, 10)),
     Cloud(worldLocation: const Offset(350, -10)),
   ];
-  final FocusNode _keyboardFocus = FocusNode();
+  FocusNode _keyboardFocus = FocusNode();
   bool showGameOver = false;
 
   ///
@@ -83,9 +83,9 @@ class _GameScreenState extends State<GameScreen>
       worldController.reset();
       showGameOver = false;
       cactusList = [
-        Cactus(worldLocation: const Offset(200, 0)),
-        Cactus(worldLocation: const Offset(350, 0)),
-        Cactus(worldLocation: const Offset(500, 0)),
+        Cactus(worldLocation: const Offset(300, 0)),
+        Cactus(worldLocation: const Offset(550, 0)),
+        Cactus(worldLocation: const Offset(600, 0)),
       ];
 
       groundList = [
@@ -187,23 +187,6 @@ class _GameScreenState extends State<GameScreen>
     }
   }
 
-  // Handling Keyboard events
-  void handleKeyboard(RawKeyEvent keyEvent) {
-    if (keyEvent.runtimeType == RawKeyDownEvent) {
-      switch (keyEvent.logicalKey.debugName) {
-        case "Space":
-          if (dino.state != DinoState.dead) {
-            dino.jump();
-          }
-          if (dino.state == DinoState.dead) {
-            newGame();
-          }
-          break;
-        default:
-      }
-    }
-  }
-
   @override
   void dispose() {
     gravityController.dispose();
@@ -245,7 +228,16 @@ class _GameScreenState extends State<GameScreen>
     return RawKeyboardListener(
       focusNode: _keyboardFocus,
       autofocus: true,
-      onKey: handleKeyboard,
+      onKey: (event) {
+        if (event.isKeyPressed(const LogicalKeyboardKey(32))) {
+          if (dino.state != DinoState.dead) {
+            dino.jump();
+          }
+          if (dino.state == DinoState.dead) {
+            newGame();
+          }
+        }
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 5000),
         color: (runDistance ~/ dayNightOffest) % 2 == 0
