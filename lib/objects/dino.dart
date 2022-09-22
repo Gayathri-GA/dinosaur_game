@@ -7,28 +7,28 @@ import 'package:flutter/widgets.dart';
 List<GroundElements> dino = [
   GroundElements()
     ..imagePath = "assets/dino/dino_one.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = 48
+    ..imageHeight = 54,
   GroundElements()
     ..imagePath = "assets/dino/dino_two.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = 48
+    ..imageHeight = 54,
   GroundElements()
     ..imagePath = "assets/dino/dino_three.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = 48
+    ..imageHeight = 54,
   GroundElements()
     ..imagePath = "assets/dino/dino_four.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = 48
+    ..imageHeight = 54,
   GroundElements()
     ..imagePath = "assets/dino/dino_five.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = 48
+    ..imageHeight = 54,
   GroundElements()
     ..imagePath = "assets/dino/dino_six.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = 48
+    ..imageHeight = 54,
 ];
 
 enum DinoState {
